@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Chat App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .chat-container {
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        .chat-box {
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .message {
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        .my-message {
+            background-color: #e1f5fe;
+        }
+        .other-message {
+            background-color: #ffe0b2;
+        }
+        input[type="text"], input[type="button"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        input[type="button"] {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        input[type="button"]:hover {
+            background-color: #0056b3;
+        }
+        .timestamp {
+            font-size: 0.8em;
+            color: #888;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <h2>Firebase Chat App</h2>
+    <div id="chat-box" class="chat-box"></div>
+    <input type="text" id="name-input" placeholder="Enter your name" />
+    <input type="text" id="message-input" placeholder="Type a message" />
+    <input type="button" id="send-button" value="Send" />
+</div>
+
+<!-- Firebase scripts -->
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+
+<script>
+    // Replace with your Firebase config
+    const firebaseConfig = {
+        apiKey: "AIzaSyDHxo2djCnOx9gk5e00SbYRnDlS6iEIF40",
+        authDomain: "realchat2024a.firebaseapp.com",
+        databaseURL: "https://realchat2024a-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "realchat2024a",
+        storageBucket: "realchat20a.appspot.com",
+        messagingSenderId: "1568509551124",
+        appId: "1:15685095511:web:525fdcb121238532fc5312"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const chatBox = document.getElementById('chat-box');
+    const nameInput = document.getElementById('name-input');
+    const messageInput = document.getElementById('message-input');
+    const sendButton = document.getElementById('send-button');
+
+    function renderMessages(snapshot) {
+        const messages = snapshot.val();
+        chatBox.innerHTML = '';
+        for (const id in messages) {
+            const message = messages[id];
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message');
+            messageElement.classList.add(message.name === nameInput.value ? 'my-message' : 'other-message');
+            messageElement.innerHTML = `<strong>${message.name}:</strong> ${message.text} <span class="timestamp">(${new Date(message.timestamp).toLocaleTimeString()})</span>`;
+            chatBox.appendChild(messageElement);
+        }
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function sendMessage() {
+        const name = nameInput.value.trim();
+        const text = messageInput.value.trim();
+
+        if (name && text) {
+            const message = {
+                name,
+                text,
+                timestamp: Date.now()
+            };
+            // Push message to Firebase
+            db.ref('messages').push(message);
+            messageInput.value = '';
+        } else {
+            alert('Please enter your name and message.');
+        }
+    }
+
+    // Listen for new messages in Firebase
+    db.ref('messages').on('value', renderMessages);
+
+    // Send button click event
+    sendButton.onclick = sendMessage;
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
